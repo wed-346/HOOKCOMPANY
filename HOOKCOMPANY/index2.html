@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата послуг - Hook Company</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #121212;
+            --secondary: #0a0a0a;
+            --accent: #ff5ff2;
+            --accent-gradient: linear-gradient(90deg, #7e418d, #ae21d1);
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a0;
+            --card-bg: #1e1e1e;
+            --card-hover: #252525;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logo h1 {
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            color: var(--accent);
+            font-size: 32px;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .order-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .services-selection {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .services-selection h2 {
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .services-selection h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        .service-option {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            border: 2px solid #333;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .service-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-option.selected {
+            border-color: var(--accent);
+            background: rgba(255, 95, 242, 0.1);
+        }
+
+        .service-option h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .service-option i {
+            color: var(--accent);
+        }
+
+        .service-option p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .service-option .price {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .order-summary {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
+        }
+
+        .order-summary h2 {
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .order-summary h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #444;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .summary-total .amount {
+            color: var(--accent);
+        }
+
+        .payment-form {
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .pay-button {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(255, 95, 242, 0.4);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .pay-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 95, 242, 0.6);
+        }
+
+        .additional-info {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin-top: 30px;
+        }
+
+        .additional-info h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .additional-info h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-gradient);
+            border-radius: 2px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .info-item i {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+
+        .info-item h3 {
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .info-item p {
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #2a2a2a;
+            color: var(--text-secondary);
+        }
+
+        .payment-methods {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .monobank-logo {
+            height: 30px;
+            filter: brightness(0.9);
+        }
+
+        /* Success message styles */
+        .success-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .success-message.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent);
+            transform: translateY(50px);
+            transition: transform 0.5s ease;
+        }
+
+        .success-message.active .success-content {
+            transform: translateY(0);
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .success-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .success-text {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .back-button {
+            padding: 12px 30px;
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(255, 95, 242, 0.4);
+        }
+
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 95, 242, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .order-container {
+                flex-direction: column;
+            }
+            
+            .order-summary {
+                position: static;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .success-content {
+                padding: 30px 20px;
+                margin: 0 20px;
+            }
+
+            .success-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-anchor logo-icon"></i>
+                <h1>Hook Company</h1>
+            </div>
+            <h1 class="page-title">Оплата послуг</h1>
+            <p class="page-subtitle">Оберіть послуги, які вам потрібні, та завершіть замовлення за допомогою нашої безпечної платіжної системи</p>
+        </header>
+
+        <div class="order-container">
+            <div class="services-selection">
+                <h2>Оберіть послуги</h2>
+                
+                <div class="service-option" onclick="selectService(this, 1999, 'Повний пакет веб-сайту')">
+                    <h3><i class="fas fa-laptop-code"></i> Повний пакет веб-сайту</h3>
+                    <p>Frontend + Backend розробка, адаптивний дизайн та 1 рік базового обслуговування.</p>
+                    <div class="price">1999.00 грн</div>
+                </div>
+                
+                <div class="service-option" onclick="selectService(this, 1299, 'Тільки Backend розробка')">
+                    <h3><i class="fas fa-code"></i> Тільки Backend розробка</h3>
+                    <p>Серверна частина, дизайн бази даних, створення API та розгортання.</p>
+                    <div class="price">1299.00 грн</div>
+                </div>
+                
+                <div class="service-option" onclick="selectService(this, 899, 'Тільки Frontend розробка')">
+                    <h3><i class="fas fa-paint-brush"></i> Тільки Frontend розробка</h3>
+                    <p>Сучасний адаптивний дизайн веб-сайту з HTML, CSS, JavaScript та обраним фреймворком.</p>
+                    <div class="price">899.00 грн</div>
+                </div>
+                
+                <div class="service-option" onclick="selectService(this, 499, 'Редизайн веб-сайту')">
+                    <h3><i class="fas fa-mobile-alt"></i> Редизайн веб-сайту</h3>
+                    <p>Модернізація вашого існуючого веб-сайту з оновленим дизайном та покращеним користувальницьким досвідом.</p>
+                    <div class="price">499.00 грн</div>
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <h2>Деталі замовлення</h2>
+                
+                <div class="summary-item">
+                    <span>Обрана послуга:</span>
+                    <span id="selected-service">Не обрано</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span>Сума:</span>
+                    <span id="subtotal">0.00 грн</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span>Податок:</span>
+                    <span id="tax">0.00 грн</span>
+                </div>
+                
+                <div class="summary-total">
+                    <span>Всього до сплати:</span>
+                    <span id="total" class="amount">0.00 грн</span>
+                </div>
+                
+                <div class="payment-form">
+                    <h3 style="margin-bottom: 20px;">Платіжна інформація</h3>
+                    
+                    <div class="form-group">
+                        <label for="client-name">Повне ім'я</label>
+                        <input type="text" id="client-name" placeholder="Ваше повне ім'я">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client-email">Email адреса</label>
+                        <input type="email" id="client-email" placeholder="ваша.email@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client-card">Номер картки</label>
+                        <input type="number" id="client-card" placeholder="1234 5678 9012 3456">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-details">Деталі проекту (необов'язково)</label>
+                        <textarea id="project-details" rows="3" placeholder="Короткий опис вашого проекту..."></textarea>
+                    </div>
+                    
+                    <button class="pay-button" onclick="processPayment()" id="pay-button">
+                        <i class="fas fa-lock"></i> Сплатити зараз
+                    </button>
+
+                    <div class="payment-methods">
+                        <span>Безпечна оплата через</span>
+                        <img src="https://www.monobank.com.ua/resources/1.6.0.0/i/logo-mono.svg" alt="Monobank" class="monobank-logo">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="additional-info">
+            <h2>Що включено</h2>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3>Контроль якості</h3>
+                        <p>Ретельне тестування на різних пристроях та браузерах</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h3>Швидка доставка</h3>
+                        <p>Більшість проектів завершуються протягом 2-3 тижнів</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-lock"></i>
+                    <div>
+                        <h3>Безпечна оплата</h3>
+                        <p>Ваша платіжна інформація зашифрована та захищена</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-headset"></i>
+                    <div>
+                        <h3>Підтримка</h3>
+                        <p>30 днів безкоштовної підтримки після здачі проекту</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2025 Hook Company. Всі права захищені.</p>
+        </footer>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="success-message">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="success-title">Оплата успішна!</h2>
+            <p class="success-text">Дякуємо за ваше замовлення. Ваш платіж успішно оброблено. Наша команда зв'яжеться з вами протягом 24 годин для обговорення деталей вашого проекту.</p>
+            <a href="index.html" class="back-button" onclick="goBackToHome()">
+                <i class="fas fa-arrow-left"></i> На головну
+            </a >
+        </div>
+    </div>
+
+    <script>
+        // Токен для оплати (замініть на ваш реальний токен)
+        const PAYMENT_TOKEN = 'uEiDy1j-onMkDxGna4gl_Re1Y7Oya28yisHn0JNUiHrM';
+        
+        let selectedService = null;
+        let selectedPrice = 0;
+        let selectedServiceName = '';
+        
+        function selectService(element, price, name) {
+            // Remove selected class from all options
+            document.querySelectorAll('.service-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Update selected service and price
+            selectedService = element;
+            selectedPrice = price;
+            selectedServiceName = name;
+            
+            // Update order summary
+            updateOrderSummary();
+        }
+        
+        function updateOrderSummary() {
+            document.getElementById('selected-service').textContent = selectedServiceName || 'Не обрано';
+            
+            const subtotal = selectedPrice;
+            const tax = subtotal * 0.2; // 20% tax
+            const total = subtotal + tax;
+            
+            document.getElementById('subtotal').textContent = subtotal.toFixed(2) + ' грн';
+            document.getElementById('tax').textContent = tax.toFixed(2) + ' грн';
+            document.getElementById('total').textContent = total.toFixed(2) + ' грн';
+        }
+        
+        function processPayment() {
+            if (!selectedService) {
+                alert('Будь ласка, оберіть послугу перед оплатою.');
+                return;
+            }
+            
+            // Simple validation
+            const clientName = document.getElementById('client-name').value;
+            const clientEmail = document.getElementById('client-email').value;
+            const clientcard = document.getElementById('client-card').value;
+          
+            if (!clientName || !clientEmail || !clientcard) {
+                alert('Будь ласка, заповніть всі обов\'язкові поля.');
+                return;
+            }
+            
+            // Disable pay button to prevent multiple clicks
+            const payButton = document.getElementById('pay-button');
+            payButton.disabled = true;
+            payButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обробка...';
+            
+            // Calculate total amount
+            const totalAmount = selectedPrice * 1.2; // price + 20% tax
+            
+            // In a real application, you would send a request to your server
+            // which would then communicate with the payment gateway
+            simulatePaymentProcessing(totalAmount);
+        }
+        
+        function simulatePaymentProcessing(amount) {
+            // Simulate API call to payment gateway
+            setTimeout(() => {
+                // For demonstration purposes, we'll show success 80% of the time
+                const isSuccess = Math.random() > 0.2;
+                
+                if (isSuccess) {
+                    // Show success message
+                    document.getElementById('success-message').classList.add('active');
+                    
+                    // Here you would typically send the transaction data to your server
+                    // to verify and record the payment
+                    console.log('Payment successful. Amount:', amount);
+                    console.log('Token used:', PAYMENT_TOKEN);
+                    
+                    // Reset form
+                    resetForm();
+                } else {
+                    // Show error message
+                    alert('На жаль, сталася помилка при обробці платежу. Будь ласка, спробуйте ще раз.');
+                    
+                    // Re-enable pay button
+                    const payButton = document.getElementById('pay-button');
+                    payButton.disabled = false;
+                    payButton.innerHTML = '<i class="fas fa-lock"></i> Сплатити зараз';
+                }
+            }, 2000);
+        }
+        
+        function resetForm() {
+            document.querySelectorAll('.service-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.getElementById('selected-service').textContent = 'Не обрано';
+            document.getElementById('subtotal').textContent = '0.00 грн';
+            document.getElementById('tax').textContent = '0.00 грн';
+            document.getElementById('total').textContent = '0.00 грн';
+            document.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('project-details').value = '';
+            
+            selectedService = null;
+            selectedPrice = 0;
+            selectedServiceName = '';
+        }
+        
+        function goBackToHome() {
+            // Hide success message
+            document.getElementById('success-message').classList.remove('active');
+            
+            // Scroll to top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up any initial state here if needed
+
+        });
+    </script>
+</body>
+</html>
